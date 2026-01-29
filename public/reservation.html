@@ -181,20 +181,33 @@ async function deleteReservation(id) {
 
 async function updateReservation(id) {
   const newGuests = prompt("Enter new number of guests:");
-  if (!newGuests) return;
+
+  if (newGuests === null) return;
+
+  const guestsNumber = Number(newGuests);
+
+  if (isNaN(guestsNumber) || guestsNumber < 1) {
+    alert("Guests must be a number greater than 0");
+    return;
+  }
 
   try {
-    await fetch(`${RES_API}/${id}`, {
+    const res = await fetch(`${RES_API}/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ guests: Number(newGuests) })
+      body: JSON.stringify({ guests: guestsNumber })
     });
+
+    if (!res.ok) throw new Error("Update failed");
+
+    await res.json();
     getReservations();
   } catch (err) {
     console.error(err);
     alert("Error updating reservation");
   }
 }
+
 
 (function() {
   const THEME_KEY = 'tasteMartTheme';

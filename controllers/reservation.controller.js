@@ -21,6 +21,25 @@ exports.getReservationById = async (req, res) => {
   res.json(reservation);
 };
 
+exports.updateReservation = async (req, res) => {
+  console.log("PUT body:", req.body, "ID:", req.params.id);
+  try {
+    const updatedReservation = await Reservation.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    if (!updatedReservation) return res.status(404).json({ message: "Reservation not found" });
+    res.json(updatedReservation);
+  } catch (err) {
+    console.error("Update error:", err);
+    res.status(500).json({ message: "Error updating reservation" });
+  }
+};
+
+
+
+
 exports.deleteReservation = async (req, res) => {
   const deleted = await Reservation.findByIdAndDelete(req.params.id);
   if (!deleted)
