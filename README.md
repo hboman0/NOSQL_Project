@@ -1,59 +1,214 @@
-# Taste-Mart | Restaurant Management System
+# Taste-Mart Restaurant Management System
 
-## Project Description
-Taste-Mart is a full-stack restaurant management system that allows users to view the menu and make table reservations. The backend is built with **Node.js**, **Express**, and **MongoDB**, while the frontend is a responsive **HTML/CSS/JS** interface. Users can view menu items with images, filter dishes by category, and book reservations online.
+## Project Overview
 
----
+Full-stack web application for restaurant management including menu display, table reservations, and order management. Built with MongoDB, Express.js, and vanilla JavaScript.
+
+**Course:** Advanced Databases (NoSQL)  
+**Team Size:** 1 student
+
+## Technology Stack
+
+**Backend:**
+- Node.js with Express.js
+- MongoDB (NoSQL database)
+- Mongoose ODM
+- JWT authentication
+- bcryptjs for password hashing
+
+**Frontend:**
+- HTML5, CSS3, JavaScript (ES6+)
+- Bootstrap 5
+- jQuery
+- Fetch API
 
 ## Features
-- Display menu items with images, descriptions, prices, and categories.
-- Filter menu items by category (Starters, Main Courses, Desserts).
-- Make table reservations by filling out a form (CRUD operations on reservations).
-- Responsive design with dark/light theme toggle.
-- Data persistence using MongoDB.
 
----
+- Menu management with CRUD operations
+- Table reservation system
+- Pre-order menu items with reservations
+- JWT-based authentication and authorization
+- Dark mode theme
+- Responsive design
+- Advanced MongoDB operations (aggregations, compound indexes)
 
 ## Installation
 
-1. Clone this repository:
-git clone https://github.com/yourusername/taste-mart.git
-cd taste-mart
+### Prerequisites
+- Node.js v14+
+- MongoDB v4.4+
+- npm v6+
 
-2. Install dependencies:
+### Setup
+
+1. Clone repository
+```bash
+git clone https://github.com/yourusername/restaurant-management.git
+cd restaurant-management
+```
+
+2. Install dependencies
+```bash
+cd backend
 npm install
+```
 
-3. Create a .env file in the root folder:
+3. Configure environment (.env file in backend directory)
+```
 PORT=3000
-MONGO_URI=mongodb://127.0.0.1:27017/restaurant_db
+MONGO_URI=mongodb://localhost:27017/restaurant_db
+JWT_SECRET=super_secret_key_123
+```
 
-4. Start the server
-node server.js
+4. Start MongoDB
+```bash
+# macOS
+brew services start mongodb-community
 
-5. Open index.html or run a live server for frontend testing
+# Linux
+sudo systemctl start mongodb
 
-## Project structure
-<img width="274" height="578" alt="image" src="https://github.com/user-attachments/assets/0ae378aa-5c6c-4454-a805-d1954441d7b7" />
+# Windows
+net start MongoDB
+```
 
-## API Routes
-Menu
-Method	Endpoint	Description
-GET	/api/menu	Get all menu items
-POST	/api/menu	Add a new menu item (admin)
+5. Create admin user in MongoDB
+```javascript
+db.users.insertOne({
+  email: "admin@taste-mart.com",
+  password: "$2a$10$...", // Use bcrypt to hash password
+  role: "admin"
+})
+```
 
-Reservations
-Method	Endpoint	Description
-GET	/api/reservations	Get all reservations
-POST	/api/reservations	Create a new reservation
-PUT	/api/reservations/:id	Update reservation by ID
-DELETE	/api/reservations/:id	Delete reservation by ID
+6. Start backend server
+```bash
+npm start
+```
 
-## Screenshots
-<img width="1909" height="929" alt="Снимок экрана 2026-01-18 004631" src="https://github.com/user-attachments/assets/7045a8e5-f185-4274-90c6-afcf5ac6f61d" />
-<img width="1919" height="429" alt="Снимок экрана 2026-01-18 004637" src="https://github.com/user-attachments/assets/45f994dd-e5f3-4171-8691-777261ef882e" />
-<img width="1532" height="919" alt="Снимок экрана 2026-01-18 011154" src="https://github.com/user-attachments/assets/9b66663a-00cc-42e4-ada7-9353127d9452" />
-<img width="1456" height="835" alt="Снимок экрана 2026-01-18 011230" src="https://github.com/user-attachments/assets/69b31de0-09bd-479b-91ec-2e4e60d88d15" />
+7. Open frontend
+Open `frontend/index.html` in browser or serve with:
+```bash
+python -m http.server 8000
+```
 
+## Project Structure
 
+```
+project/
+├── backend/
+│   ├── controllers/       # Business logic
+│   ├── middleware/        # Auth and role checking
+│   ├── models/            # Mongoose schemas
+│   ├── routes/            # API endpoints
+│   ├── .env               # Environment variables
+│   ├── server.js          # Express app
+│   └── package.json
+└── frontend/
+    ├── css/
+    ├── js/
+    ├── images/
+    └── *.html             # 5 pages
+```
 
+## API Endpoints
+
+Base URL: `http://localhost:3000/api`
+
+### Authentication
+- POST `/auth/register` - Register user
+- POST `/auth/login` - Login and get JWT token
+
+### Menu (6 endpoints)
+- GET `/menu` - Get all menu items
+- GET `/menu/:id` - Get menu item by ID
+- POST `/menu` - Create menu item (admin)
+- PUT `/menu/:id` - Update menu item (admin)
+- DELETE `/menu/:id` - Delete menu item (admin)
+- PUT `/menu/:id/views` - Increment views
+
+### Reservations (10 endpoints)
+- GET `/reservations` - Get all reservations
+- GET `/reservations/:id` - Get reservation by ID
+- POST `/reservations` - Create reservation (admin)
+- PUT `/reservations/:id` - Update reservation (admin)
+- DELETE `/reservations/:id` - Delete reservation (admin)
+- POST `/reservations/:id/items` - Add item to reservation (admin)
+- DELETE `/reservations/:id/items` - Remove item from reservation (admin)
+- PUT `/reservations/bulk/large` - Mark large reservations (admin)
+- GET `/reservations/stats/summary` - Get statistics (admin)
+
+Total: 18 endpoints
+
+## Database Schema
+
+### Collections
+
+**Users**
+```javascript
+{
+  email: String (unique),
+  password: String (hashed),
+  role: String (enum: ["user", "admin"])
+}
+```
+
+**MenuItems**
+```javascript
+{
+  name: String,
+  description: String,
+  price: Number,
+  category: String (enum: ["starters", "main", "desserts"]),
+  image: String,
+  views: Number
+}
+```
+
+**Reservations**
+```javascript
+{
+  customerName: String,
+  guests: Number,
+  date: String,
+  time: String,
+  specialRequests: String,
+  orderedItems: [
+    {
+      menuItem: ObjectId (ref: "MenuItem"),
+      quantity: Number
+    }
+  ]
+}
+// Index: { date: 1, time: 1 }
+```
+
+## MongoDB Features Implemented
+
+- Full CRUD operations
+- Embedded documents (orderedItems)
+- Referenced documents (menuItem)
+- Advanced operators: $inc, $push, $pull, $set, updateMany
+- Aggregation pipeline (group + sort)
+- Compound index on {date, time}
+
+## Security
+
+- JWT authentication
+- Password hashing with bcrypt
+- Role-based authorization (admin/user)
+- Protected routes with middleware
+- Environment variables for sensitive data
+
+## Requirements Met
+
+- 18 REST API endpoints (requirement: 8+)
+- 5 frontend pages (requirement: 4+)
+- Full CRUD across collections
+- Embedded and referenced models
+- Advanced update/delete operators
+- Multi-stage aggregation
+- Compound indexes
+- Authentication and authorization
+- Complete documentation
 

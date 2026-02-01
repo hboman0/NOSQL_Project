@@ -35,3 +35,14 @@ exports.deleteMenuItem = async (req, res) => {
   if (!deleted) return res.status(404).json({ message: "Menu item not found" });
   res.json({ message: "Menu item deleted" });
 };
+
+exports.incrementViews = async (req, res) => {
+  const updated = await MenuItem.findByIdAndUpdate(
+    req.params.id,
+    { $inc: { views: 1 } },
+    { new: true }
+  );
+
+  res.json(updated);
+};
+

@@ -570,3 +570,23 @@ body.dark-mode .navbar-brand img { filter: brightness(1.1) contrast(1.05); }
     margin: 15px 0;
   }
 }
+
+#loginForm label {
+  color: #222;
+  font-weight: bold;
+}
+
+#loginForm input::placeholder {
+  color: #555;
+  opacity: 1;
+}
+
+#loginForm .form-control {
+  border: 1px solid #000;
+  border-radius: 4px;
+}
+
+#loginForm .form-control:focus {
+  border-color: #000;
+  box-shadow: none;
+}

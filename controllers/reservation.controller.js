@@ -1,48 +1,174 @@
+const mongoose = require("mongoose");
 const Reservation = require("../models/reservation.model");
 
 exports.createReservation = async (req, res) => {
   try {
-    const reservation = await Reservation.create(req.body);
-    res.status(201).json(reservation);
+    let { orderedItems, ...rest } = req.body;
+
+    if (Array.isArray(orderedItems) && orderedItems.length > 0) {
+      orderedItems = orderedItems.map(item => ({
+        menuItem: item.menuItem,
+        quantity: item.quantity
+      }));
+    } else {
+      orderedItems = [];
+    }
+
+    const reservation = await Reservation.create({
+      ...rest,
+      orderedItems: orderedItems
+    });
+
+    const populated = await Reservation.findById(reservation._id)
+      .populate('orderedItems.menuItem');
+
+    res.status(201).json(populated);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.error("Error creating reservation:", error.message);
+    res.status(400).json({ 
+      message: error.message
+    });
   }
 };
 
 exports.getAllReservations = async (req, res) => {
-  const reservations = await Reservation.find();
-  res.json(reservations);
+  try {
+    const reservations = await Reservation.find()
+      .populate('orderedItems.menuItem');
+    
+    res.json(reservations);
+  } catch (error) {
+    console.error("Error fetching reservations:", error.message);
+    res.status(500).json({ message: error.message });
+  }
 };
 
 exports.getReservationById = async (req, res) => {
-  const reservation = await Reservation.findById(req.params.id);
-  if (!reservation)
-    return res.status(404).json({ message: "Reservation not found" });
-  res.json(reservation);
+  try {
+    const reservation = await Reservation.findById(req.params.id)
+      .populate('orderedItems.menuItem');
+    
+    if (!reservation) {
+      return res.status(404).json({ message: "Reservation not found" });
+    }
+    
+    res.json(reservation);
+  } catch (error) {
+    console.error("Error fetching reservation:", error.message);
+    res.status(500).json({ message: error.message });
+  }
 };
 
 exports.updateReservation = async (req, res) => {
-  console.log("PUT body:", req.body, "ID:", req.params.id);
   try {
     const updatedReservation = await Reservation.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true, runValidators: true }
-    );
-    if (!updatedReservation) return res.status(404).json({ message: "Reservation not found" });
+    ).populate('orderedItems.menuItem');
+    
+    if (!updatedReservation) {
+      return res.status(404).json({ message: "Reservation not found" });
+    }
+    
     res.json(updatedReservation);
-  } catch (err) {
-    console.error("Update error:", err);
+  } catch (error) {
+    console.error("Error updating reservation:", error.message);
     res.status(500).json({ message: "Error updating reservation" });
   }
 };
 
-
-
-
 exports.deleteReservation = async (req, res) => {
-  const deleted = await Reservation.findByIdAndDelete(req.params.id);
-  if (!deleted)
-    return res.status(404).json({ message: "Reservation not found" });
-  res.json({ message: "Reservation deleted" });
+  try {
+    const deleted = await Reservation.findByIdAndDelete(req.params.id);
+    
+    if (!deleted) {
+      return res.status(404).json({ message: "Reservation not found" });
+    }
+    
+    res.json({ message: "Reservation deleted" });
+  } catch (error) {
+    console.error("Error deleting reservation:", error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.addItemToReservation = async (req, res) => {
+  try {
+    const { menuItem, quantity } = req.body;
+
+    const updated = await Reservation.findByIdAndUpdate(
+      req.params.id,
+      {
+        $push: {
+          orderedItems: { menuItem, quantity }
+        }
+      },
+      { new: true }
+    ).populate('orderedItems.menuItem');
+
+    if (!updated) {
+      return res.status(404).json({ message: "Reservation not found" });
+    }
+
+    res.json(updated);
+  } catch (error) {
+    console.error("Error adding item:", error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.removeItemFromReservation = async (req, res) => {
+  try {
+    const { menuItemId } = req.body;
+
+    const updated = await Reservation.findByIdAndUpdate(
+      req.params.id,
+      {
+        $pull: {
+          orderedItems: { menuItem: menuItemId }
+        }
+      },
+      { new: true }
+    ).populate('orderedItems.menuItem');
+
+    res.json(updated);
+  } catch (error) {
+    console.error("Error removing item:", error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.markLargeReservations = async (req, res) => {
+  try {
+    const result = await Reservation.updateMany(
+      { guests: { $gte: 6 } },
+      { $set: { specialRequests: "Large group reservation" } }
+    );
+
+    res.json(result);
+  } catch (error) {
+    console.error("Error bulk updating:", error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getReservationStats = async (req, res) => {
+  try {
+    const stats = await Reservation.aggregate([
+      {
+        $group: {
+          _id: "$date",
+          totalReservations: { $sum: 1 },
+          totalGuests: { $sum: "$guests" }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    res.json(stats);
+  } catch (error) {
+    console.error("Error fetching stats:", error.message);
+    res.status(500).json({ message: error.message });
+  }
 };

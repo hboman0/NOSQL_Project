@@ -21,6 +21,10 @@ const menuItemSchema = new mongoose.Schema(
     },
     image: {
       type: String
+    },
+    views: {
+      type: Number,
+      default: 0
     }
   },
   { timestamps: true }

@@ -18,6 +18,19 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <button id="themeToggle" class="btn btn-outline-warning ms-3">🌙</button>
+      <button 
+        class="btn btn-outline-warning ms-2"
+        data-bs-toggle="modal"
+        data-bs-target="#loginModal"
+        id="loginBtn">
+        Login
+      </button>
+
+      <button 
+        class="btn btn-outline-danger ms-2 d-none"
+        id="logoutBtn">
+        Logout
+      </button>
       <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
         <ul class="navbar-nav">
           <li class="nav-item"><a href="index.html" class="nav-link active">Home</a></li>
@@ -165,6 +178,37 @@
   </div>
 </section>
 
+<div class="modal fade" id="loginModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Admin Login</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <form id="loginForm">
+          <div class="mb-3">
+            <label>Email</label>
+            <input type="email" id="loginEmail" class="form-control" required>
+          </div>
+
+          <div class="mb-3">
+            <label>Password</label>
+            <input type="password" id="loginPassword" class="form-control" required>
+          </div>
+
+          <button class="btn btn-warning w-100">Login</button>
+          <p id="loginMsg" class="mt-2 text-center"></p>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
   <footer class="footer-custom py-4">
   <div class="container d-flex flex-wrap justify-content-between align-items-center">
     <div class="footer-links mb-3 mb-md-0">
@@ -293,5 +337,71 @@ function loadReviews() {
 document.getElementById('loadMoreReviews').addEventListener('click', loadReviews);
 loadReviews();
 </script>
+<script>
+const AUTH_API = "http://localhost:3000/api/auth/login";
+
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+
+function updateAuthUI() {
+  const token = localStorage.getItem("token");
+  if (token) {
+    loginBtn.classList.add("d-none");
+    logoutBtn.classList.remove("d-none");
+  } else {
+    loginBtn.classList.remove("d-none");
+    logoutBtn.classList.add("d-none");
+  }
+}
+
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const email = loginEmail.value;
+  const password = loginPassword.value;
+  const msg = document.getElementById("loginMsg");
+
+  try {
+    const res = await fetch(AUTH_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json",
+        "Authorization": "Bearer " + localStorage.getItem("token")
+       },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      msg.textContent = data.message;
+      msg.style.color = "red";
+      return;
+    }
+
+    localStorage.setItem("token", data.token);
+    msg.textContent = "Login successful!";
+    msg.style.color = "green";
+
+    setTimeout(() => {
+      bootstrap.Modal.getInstance(
+        document.getElementById("loginModal")
+      ).hide();
+      updateAuthUI();
+    }, 800);
+
+  } catch (err) {
+    msg.textContent = "Server error";
+    msg.style.color = "red";
+  }
+});
+
+logoutBtn.addEventListener("click", () => {
+  localStorage.removeItem("token");
+  updateAuthUI();
+});
+
+updateAuthUI();
+</script>
+
 </body>
 </html>
