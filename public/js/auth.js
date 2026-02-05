@@ -22,12 +22,10 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
   const msg = document.getElementById("loginMsg");
 
   try {
-    // ✅ ИСПРАВЛЕНО: убрали Authorization при логине
     const res = await fetch(AUTH_API, {
       method: "POST",
       headers: { 
         "Content-Type": "application/json"
-        // Authorization не нужен при логине!
       },
       body: JSON.stringify({ email, password })
     });
