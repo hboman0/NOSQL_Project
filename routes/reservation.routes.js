@@ -9,7 +9,7 @@ router.put("/bulk/large", auth, role("admin"), controller.markLargeReservations)
 
 router.get("/", controller.getAllReservations);
 
-router.post("/", auth, role("admin"), controller.createReservation);
+router.post("/", controller.createReservation);
 
 router.post("/:id/items", auth, role("admin"), controller.addItemToReservation);
 router.delete("/:id/items", auth, role("admin"), controller.removeItemFromReservation);
