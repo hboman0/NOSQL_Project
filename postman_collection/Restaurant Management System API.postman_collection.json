@@ -1,0 +1,1091 @@
+{
+  "info": {
+    "_postman_id": "5a2fc3f0-c21b-4733-837b-36cf1b362391",
+    "name": "Restaurant Management System API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "50922404",
+    "_collection_link": "https://go.postman.co/collection/50922404-5a2fc3f0-c21b-4733-837b-36cf1b362391?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has message\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('message');",
+                  "    pm.expect(jsonData.message).to.eql('User registered');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@taste-mart.com\",\n  \"password\": \"admin123\",\n  \"role\": \"admin\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Register a new user with email, password, and role (admin or user)"
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has token\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('token');",
+                  "    pm.environment.set('auth_token', jsonData.token);",
+                  "});",
+                  "",
+                  "pm.test(\"Token is valid JWT format\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.token).to.match(/^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_.+/=]*$/);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@taste-mart.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Authenticate user and receive JWT token"
+          },
+          "response": []
+        },
+        {
+          "name": "Login - Invalid Credentials",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has error message\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('message');",
+                  "    pm.expect(jsonData.message).to.eql('Invalid credentials');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"wrong@email.com\",\n  \"password\": \"wrongpassword\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Test authentication with invalid credentials"
+          },
+          "response": []
+        }
+      ],
+      "description": "Authentication endpoints for user registration and login"
+    },
+    {
+      "name": "Menu Items",
+      "item": [
+        {
+          "name": "Get All Menu Items",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is array\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test(\"Menu items have required fields\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.length > 0) {",
+                  "        pm.expect(jsonData[0]).to.have.property('_id');",
+                  "        pm.expect(jsonData[0]).to.have.property('name');",
+                  "        pm.expect(jsonData[0]).to.have.property('price');",
+                  "        pm.expect(jsonData[0]).to.have.property('category');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/menu",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "menu"
+              ]
+            },
+            "description": "Retrieve all menu items (public endpoint)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Menu Item by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has menu item\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('_id');",
+                  "    pm.expect(jsonData).to.have.property('name');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/menu/{{menu_item_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "menu",
+                "{{menu_item_id}}"
+              ]
+            },
+            "description": "Get a specific menu item by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Menu Item",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has created menu item\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('_id');",
+                  "    pm.expect(jsonData.name).to.eql('Caesar Salad');",
+                  "    pm.expect(jsonData.price).to.eql(12.99);",
+                  "    pm.environment.set('menu_item_id', jsonData._id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Caesar Salad\",\n  \"description\": \"Classic Caesar salad with parmesan and croutons\",\n  \"price\": 12.99,\n  \"category\": \"starters\",\n  \"image\": \"caesar.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/menu",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "menu"
+              ]
+            },
+            "description": "Create a new menu item (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Menu Item",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Menu item updated\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.price).to.eql(13.99);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 13.99,\n  \"description\": \"Updated Caesar salad with premium parmesan\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/menu/{{menu_item_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "menu",
+                "{{menu_item_id}}"
+              ]
+            },
+            "description": "Update an existing menu item (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Increment Menu Item Views",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Views incremented\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('views');",
+                  "    pm.expect(jsonData.views).to.be.above(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/menu/{{menu_item_id}}/views",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "menu",
+                "{{menu_item_id}}",
+                "views"
+              ]
+            },
+            "description": "Increment view counter for a menu item (uses $inc operator)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Menu Item",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Deletion confirmed\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.eql('Menu item deleted');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/menu/{{menu_item_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "menu",
+                "{{menu_item_id}}"
+              ]
+            },
+            "description": "Delete a menu item (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Menu Item - Unauthorized",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test(\"Error message present\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('message');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Item\",\n  \"description\": \"Test\",\n  \"price\": 10.00,\n  \"category\": \"main\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/menu",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "menu"
+              ]
+            },
+            "description": "Test creating menu item without authentication token"
+          },
+          "response": []
+        }
+      ],
+      "description": "Menu management endpoints"
+    },
+    {
+      "name": "Reservations",
+      "item": [
+        {
+          "name": "Get All Reservations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is array\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reservations",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reservations"
+              ]
+            },
+            "description": "Get all reservations (public endpoint)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Reservation by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Reservation has required fields\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('customerName');",
+                  "    pm.expect(jsonData).to.have.property('guests');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reservations/{{reservation_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reservations",
+                "{{reservation_id}}"
+              ]
+            },
+            "description": "Get specific reservation by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Reservation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Reservation created\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('_id');",
+                  "    pm.expect(jsonData.customerName).to.eql('John Smith');",
+                  "    pm.expect(jsonData.guests).to.eql(4);",
+                  "    pm.environment.set('reservation_id', jsonData._id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"John Smith\",\n  \"guests\": 4,\n  \"date\": \"2026-02-15\",\n  \"time\": \"19:00\",\n  \"specialRequests\": \"Window table please\",\n  \"orderedItems\": []\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/reservations",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reservations"
+              ]
+            },
+            "description": "Create a new reservation (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Reservation with Items",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Reservation has ordered items\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.orderedItems).to.be.an('array');",
+                  "    pm.expect(jsonData.orderedItems.length).to.be.above(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Jane Doe\",\n  \"guests\": 2,\n  \"date\": \"2026-02-16\",\n  \"time\": \"20:00\",\n  \"specialRequests\": \"Birthday celebration\",\n  \"orderedItems\": [\n    {\n      \"menuItem\": \"{{menu_item_id}}\",\n      \"quantity\": 2\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/reservations",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reservations"
+              ]
+            },
+            "description": "Create reservation with pre-ordered items"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Reservation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Reservation updated\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.guests).to.eql(5);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"guests\": 5,\n  \"time\": \"19:30\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/reservations/{{reservation_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reservations",
+                "{{reservation_id}}"
+              ]
+            },
+            "description": "Update reservation details (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Add Item to Reservation ($push)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Item added to reservation\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.orderedItems).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"menuItem\": \"{{menu_item_id}}\",\n  \"quantity\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/reservations/{{reservation_id}}/items",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reservations",
+                "{{reservation_id}}",
+                "items"
+              ]
+            },
+            "description": "Add menu item to existing reservation using $push operator (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Item from Reservation ($pull)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains orderedItems\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('orderedItems');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"menuItemId\": \"{{menu_item_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/reservations/{{reservation_id}}/items",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reservations",
+                "{{reservation_id}}",
+                "items"
+              ]
+            },
+            "description": "Remove menu item from reservation using $pull operator (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Mark Large Reservations (updateMany)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Bulk update result\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('acknowledged');",
+                  "    pm.expect(jsonData.acknowledged).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reservations/bulk/large",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reservations",
+                "bulk",
+                "large"
+              ]
+            },
+            "description": "Bulk update reservations with 6+ guests using updateMany and $set operator (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Reservation Statistics (Aggregation)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Statistics returned\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "    if (jsonData.length > 0) {",
+                  "        pm.expect(jsonData[0]).to.have.property('_id');",
+                  "        pm.expect(jsonData[0]).to.have.property('totalReservations');",
+                  "        pm.expect(jsonData[0]).to.have.property('totalGuests');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reservations/stats/summary",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reservations",
+                "stats",
+                "summary"
+              ]
+            },
+            "description": "Get aggregated statistics using MongoDB aggregation pipeline (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Reservation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Deletion confirmed\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.eql('Reservation deleted');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reservations/{{reservation_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reservations",
+                "{{reservation_id}}"
+              ]
+            },
+            "description": "Delete a reservation (admin only)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Reservation management endpoints"
+    },
+    {
+      "name": "Integration Tests",
+      "item": [
+        {
+          "name": "Full Workflow - Create to Delete",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// This is a workflow test that should be run manually",
+                  "// It tests the entire lifecycle of a reservation",
+                  "pm.test(\"Workflow test placeholder\", function () {",
+                  "    pm.expect(true).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reservations",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reservations"
+              ]
+            },
+            "description": "Run the collection in order to test full workflow"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000/api",
+      "type": "string"
+    },
+    {
+      "key": "auth_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "menu_item_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reservation_id",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
