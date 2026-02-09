@@ -1,5 +1,5 @@
-const API_URL = "http://localhost:3000/api/menu";
-const IMAGE_BASE_URL = "http://localhost:3000/images/";
+const API_URL = "/api/menu";
+const IMAGE_BASE_URL = "/images/";
 
 async function getMenu() {
   try {

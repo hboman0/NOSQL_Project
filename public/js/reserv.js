@@ -1,4 +1,4 @@
-const API_URL_RES = "http://localhost:3000/api/reservations";
+const API_URL_RES = "/api/reservations";
 const ADMIN_TOKEN = "Bearer " + localStorage.getItem("token");
 
 async function addItem() {

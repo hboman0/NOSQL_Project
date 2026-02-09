@@ -1,4 +1,4 @@
-const AUTH_API = "http://localhost:3000/api/auth/login";
+const AUTH_API = "/api/auth/login";
 
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
