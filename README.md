@@ -4,7 +4,7 @@
 
 Full-stack web application for restaurant management including menu display, table reservations, and order management. Built with MongoDB, Express.js, and vanilla JavaScript.
 
-**Course:** Advanced Databases (NoSQL)  
+**Course:** Web Technologies 2
 **Team Size:** 1 student
 
 ## Technology Stack
