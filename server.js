@@ -3,6 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path");
+const { notFound, errorHandler } = require("./middleware/errorHandler");
 
 const app = express();
 
@@ -15,6 +16,9 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/api/menu", require("./routes/menu.routes"));
 app.use("/api/reservations", require("./routes/reservation.routes"));
 app.use("/api/auth", require("./routes/auth.routes"));
+
+app.use(notFound);
+app.use(errorHandler);
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected"))

@@ -571,7 +571,7 @@ body.dark-mode .navbar-brand img { filter: brightness(1.1) contrast(1.05); }
   }
 }
 
-#loginForm label {
+#loginForm label, #registerForm label {
   color: #222;
   font-weight: bold;
 }
@@ -587,6 +587,21 @@ body.dark-mode .navbar-brand img { filter: brightness(1.1) contrast(1.05); }
 }
 
 #loginForm .form-control:focus {
+  border-color: #000;
+  box-shadow: none;
+}
+
+#registerForm input::placeholder {
+  color: #555;
+  opacity: 1;
+}
+
+#registerForm .form-control {
+  border: 1px solid #000;
+  border-radius: 4px;
+}
+
+#registerForm .form-control:focus {
   border-color: #000;
   box-shadow: none;
 }

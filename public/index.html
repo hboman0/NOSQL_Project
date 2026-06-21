@@ -26,6 +26,13 @@
         Login
       </button>
 
+      <button
+        class="btn btn-outline-light ms-2 d-none"
+        data-bs-toggle="modal"
+        data-bs-target="#profileModal"
+        id="profileBtn">
+        Profile
+      </button>
       <button 
         class="btn btn-outline-danger ms-2 d-none"
         id="logoutBtn">
@@ -38,7 +45,6 @@
           <li class="nav-item"><a href="reservation.html" class="nav-link">Reservation</a></li>
           <li class="nav-item"><a href="about.html" class="nav-link">About</a></li>
           <li class="nav-item"><a href="contact.html" class="nav-link">Contact</a></li>
-          <li class="nav-item"><a href="admin.html" class="nav-link active">Admin</a></li>
         </ul>
       </div>
     </div>
@@ -184,27 +190,80 @@
     <div class="modal-content">
 
       <div class="modal-header">
-        <h5 class="modal-title">Admin Login</h5>
+        <h5 class="modal-title" id="authModalTitle">Login</h5>
         <button class="btn-close" data-bs-dismiss="modal"></button>
       </div>
 
       <div class="modal-body">
-        <form id="loginForm">
-          <div class="mb-3">
-            <label>Email</label>
-            <input type="email" id="loginEmail" class="form-control" required>
-          </div>
 
-          <div class="mb-3">
-            <label>Password</label>
-            <input type="password" id="loginPassword" class="form-control" required>
-          </div>
+        <div id="loginView">
+          <form id="loginForm">
+            <div class="mb-3">
+              <label>Email</label>
+              <input type="email" id="loginEmail" class="form-control" required>
+            </div>
 
-          <button class="btn btn-warning w-100">Login</button>
-          <p id="loginMsg" class="mt-2 text-center"></p>
-        </form>
+            <div class="mb-3">
+              <label>Password</label>
+              <input type="password" id="loginPassword" class="form-control" required>
+            </div>
+
+            <button class="btn btn-warning w-100">Login</button>
+            <p id="loginMsg" class="mt-2 text-center"></p>
+          </form>
+          <p class="text-center mt-2 mb-0">
+            Don't have an account? <a href="#" id="showRegisterLink">Sign Up</a>
+          </p>
+        </div>
+
+        <div id="registerView" class="d-none">
+          <form id="registerForm">
+            <div class="mb-3">
+              <label>Email</label>
+              <input type="email" id="registerEmail" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+              <label>Password</label>
+              <input type="password" id="registerPassword" class="form-control" required>
+              <div class="form-text">At least 8 characters, with a letter and a number.</div>
+            </div>
+
+            <div class="mb-3">
+              <label>Confirm Password</label>
+              <input type="password" id="registerConfirmPassword" class="form-control" required>
+            </div>
+
+            <button class="btn btn-warning w-100">Sign Up</button>
+            <p id="registerMsg" class="mt-2 text-center"></p>
+          </form>
+          <p class="text-center mt-2 mb-0">
+            Already have an account? <a href="#" id="showLoginLink">Log In</a>
+          </p>
+        </div>
+
       </div>
+    </div>
+  </div>
+</div>
 
+<div class="modal fade" id="profileModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">My Profile</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p id="profileLoading" class="text-center mb-0">Loading...</p>
+        <div id="profileContent" class="d-none">
+          <p><strong>Email:</strong> <span id="profileEmail"></span></p>
+          <p><strong>Role:</strong> <span id="profileRole"></span></p>
+          <p><strong>Member since:</strong> <span id="profileCreated"></span></p>
+          <button class="btn btn-outline-danger w-100" id="modalLogoutBtn">Log Out</button>
+        </div>
+        <p id="profileMsg" class="mt-2 text-center text-danger"></p>
+      </div>
     </div>
   </div>
 </div>
@@ -338,71 +397,7 @@ function loadReviews() {
 document.getElementById('loadMoreReviews').addEventListener('click', loadReviews);
 loadReviews();
 </script>
-<script>
-const AUTH_API = "/api/auth/login";
-
-const loginBtn = document.getElementById("loginBtn");
-const logoutBtn = document.getElementById("logoutBtn");
-
-function updateAuthUI() {
-  const token = localStorage.getItem("token");
-  if (token) {
-    loginBtn.classList.add("d-none");
-    logoutBtn.classList.remove("d-none");
-  } else {
-    loginBtn.classList.remove("d-none");
-    logoutBtn.classList.add("d-none");
-  }
-}
-
-document.getElementById("loginForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const email = loginEmail.value;
-  const password = loginPassword.value;
-  const msg = document.getElementById("loginMsg");
-
-  try {
-    const res = await fetch(AUTH_API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json",
-        "Authorization": "Bearer " + localStorage.getItem("token")
-       },
-      body: JSON.stringify({ email, password })
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      msg.textContent = data.message;
-      msg.style.color = "red";
-      return;
-    }
-
-    localStorage.setItem("token", data.token);
-    msg.textContent = "Login successful!";
-    msg.style.color = "green";
-
-    setTimeout(() => {
-      bootstrap.Modal.getInstance(
-        document.getElementById("loginModal")
-      ).hide();
-      updateAuthUI();
-    }, 800);
-
-  } catch (err) {
-    msg.textContent = "Server error";
-    msg.style.color = "red";
-  }
-});
-
-logoutBtn.addEventListener("click", () => {
-  localStorage.removeItem("token");
-  updateAuthUI();
-});
-
-updateAuthUI();
-</script>
+<script src="js/auth.js"></script>
 
 </body>
 </html>

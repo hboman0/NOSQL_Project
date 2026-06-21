@@ -10,8 +10,39 @@ exports.createMenuItem = async (req, res) => {
 };
 
 exports.getAllMenuItems = async (req, res) => {
-  const items = await MenuItem.find();
-  res.json(items);
+  const { search, category, page = 1, limit = 9 } = req.query;
+
+  const filter = {};
+
+  // Search by name or description (case-insensitive partial match)
+  if (search) {
+    filter.$or = [
+      { name: { $regex: search, $options: "i" } },
+      { description: { $regex: search, $options: "i" } }
+    ];
+  }
+
+  // Filter by category
+  if (category && category !== "all") {
+    filter.category = category;
+  }
+
+  const pageNum = Math.max(parseInt(page) || 1, 1);
+  const limitNum = Math.max(parseInt(limit) || 9, 1);
+  const skip = (pageNum - 1) * limitNum;
+
+  const [items, total] = await Promise.all([
+    MenuItem.find(filter).skip(skip).limit(limitNum),
+    MenuItem.countDocuments(filter)
+  ]);
+
+  res.json({
+    items,
+    total,
+    page: pageNum,
+    limit: limitNum,
+    totalPages: Math.ceil(total / limitNum) || 1
+  });
 };
 
 exports.getMenuItemById = async (req, res) => {

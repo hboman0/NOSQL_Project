@@ -33,10 +33,40 @@ exports.createReservation = async (req, res) => {
 
 exports.getAllReservations = async (req, res) => {
   try {
-    const reservations = await Reservation.find()
-      .populate('orderedItems.menuItem');
-    
-    res.json(reservations);
+    const { search, date, page = 1, limit = 10 } = req.query;
+
+    const filter = {};
+
+    // Search by customer name (case-insensitive partial match)
+    if (search) {
+      filter.customerName = { $regex: search, $options: "i" };
+    }
+
+    // Filter by exact date (YYYY-MM-DD)
+    if (date) {
+      filter.date = date;
+    }
+
+    const pageNum = Math.max(parseInt(page) || 1, 1);
+    const limitNum = Math.max(parseInt(limit) || 10, 1);
+    const skip = (pageNum - 1) * limitNum;
+
+    const [reservations, total] = await Promise.all([
+      Reservation.find(filter)
+        .populate("orderedItems.menuItem")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum),
+      Reservation.countDocuments(filter)
+    ]);
+
+    res.json({
+      items: reservations,
+      total,
+      page: pageNum,
+      limit: limitNum,
+      totalPages: Math.ceil(total / limitNum) || 1
+    });
   } catch (error) {
     console.error("Error fetching reservations:", error.message);
     res.status(500).json({ message: error.message });
