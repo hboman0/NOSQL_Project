@@ -774,3 +774,8 @@ body.dark-mode .navbar-brand img { filter: brightness(1.1) contrast(1.05); }
     .dark-mode .section-header {
       background: linear-gradient(135deg, #4c51bf 0%, #553c9a 100%);
     }
+
+    .form-label {
+  color: #222;
+  font-weight: 500;
+}
