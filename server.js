@@ -1,4 +1,9 @@
 require("dotenv").config();
+const dns = require("dns");
+// Render's default DNS resolver sometimes fails to resolve the SRV record
+// required by mongodb+srv:// URIs ("querySrv ENOTFOUND _mongodb._tcp...").
+// Forcing Node to use Google's public DNS servers fixes this reliably.
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
